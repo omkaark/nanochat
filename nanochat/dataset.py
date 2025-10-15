@@ -21,7 +21,7 @@ from nanochat.common import get_base_dir
 
 # The URL on the internet where the data is hosted and downloaded from on demand
 BASE_URL = "https://huggingface.co/datasets/karpathy/fineweb-edu-100b-shuffle/resolve/main"
-MAX_SHARD = 1822 # the last datashard is shard_01822.parquet
+MAX_SHARD = 100 # the last datashard is shard_01822.parquet
 index_to_filename = lambda index: f"shard_{index:05d}.parquet" # format of the filenames
 base_dir = get_base_dir()
 DATA_DIR = os.path.join(base_dir, "base_data")

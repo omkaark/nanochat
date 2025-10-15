@@ -24,11 +24,17 @@ from nanochat.engine import Engine
 from scripts.base_eval import evaluate_model
 print_banner()
 
+from pathlib import Path
+import sys, os
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 # -----------------------------------------------------------------------------
 # User settings
-run = "dummy" # wandb run name default ("dummy" is special - we won't log to wandb)
+run = "base-1xA100" # wandb run name default ("dummy" is special - we won't log to wandb)
 # Model architecture
-depth = 20 # the depth of the Transformer model to train, rest of the kwargs are derived
+depth = 10 # the depth of the Transformer model to train, rest of the kwargs are derived
 max_seq_len = 2048 # max context length
 # Training horizon. Only one of these 3 will be used, in this order of precedence.
 num_iterations = -1 # explicit number of steps of the optimization (-1 = disable)
@@ -286,8 +292,8 @@ for step in range(num_iterations + 1):
     pct_done = 100 * step / num_iterations
     tok_per_sec = int(world_tokens_per_fwdbwd / dt)
     flops_per_sec = num_flops_per_token * total_batch_size / dt
-    promised_flops_per_sec_h100 = 989e12 * ddp_world_size # bfloat16 H100 SXM and without 2:4 sparsity
-    mfu = 100 * flops_per_sec / promised_flops_per_sec_h100 # in %
+    promised_flops_per_sec_a100 = 312e12 * ddp_world_size # bfloat16 a100 SXM and without 2:4 sparsity
+    mfu = 100 * flops_per_sec / promised_flops_per_sec_a100 # in %
     if step > 10:
         total_training_time += dt # only count the time after the first 10 steps
     print0(f"step {step:05d}/{num_iterations:05d} ({pct_done:.2f}%) | loss: {debiased_smooth_loss:.6f} | lrm: {lrm:.2f} | dt: {dt * 1000:.2f}ms | tok/sec: {tok_per_sec:,} | mfu: {mfu:.2f} | total time: {total_training_time/60:.2f}m")
